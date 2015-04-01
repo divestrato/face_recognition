@@ -287,16 +287,16 @@ class Gaborfilter(AbstractFeature):
     		filters.append(kern)
 
     	# gabor process
-    	X = np.zeros_like(X)
+    	accum = np.zeros_like(X)
     	for kern in filters:
-    		fimg = cv2.filter2D(X, cv2.CV_8UC3, kern)
-    		np.maximum(X, fimg, X)
+    		fimg = cv2.filter2D(np.asarray(X), cv2.CV_8UC3, kern)
+    		np.maximum(accum, fimg, accum)
 
         # define features to be extracted
         pca = PCA(num_components = (n-c))
 
         # computing the chained model then calculates both decompositions
-        pca.compute(X,y)
+        pca.compute(accum,y)
 
         # store eigenvalues and number of components used
         self._eigenvalues = pca.eigenvalues
@@ -307,7 +307,7 @@ class Gaborfilter(AbstractFeature):
 
         # finally compute the features (these are the Gaborfilter)
         features = []
-        for x in X:
+        for x in accum:
             xp = self.project(x.reshape(-1,1))
             features.append(xp)
         return features
