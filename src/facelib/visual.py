@@ -2,6 +2,7 @@ from facelib.normalization import minmax
 
 import os as os
 import numpy as np
+from pylab import *
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 # try to import the PIL Image module
@@ -25,7 +26,7 @@ def plot_gray(X,  sz=None, filename=None):
         plt.show()
     else:
         fig.savefig(filename, format="png", transparent=False)
-    
+
 def plot_eigenvectors(eigenvectors, num_components, sz, filename=None, start_component=0, rows = None, cols = None, title="Subplot", color=True):
         if (rows is None) or (cols is None):
             rows = cols = int(math.ceil(np.sqrt(num_components)))
@@ -35,9 +36,9 @@ def plot_eigenvectors(eigenvectors, num_components, sz, filename=None, start_com
             vi = eigenvectors[0:,i].copy()
             vi = minmax(np.asarray(vi), 0, 255, dtype=np.uint8)
             vi = vi.reshape(sz)
-            
+
             ax0 = fig.add_subplot(rows,cols,(i-start_component)+1)
-            
+
             plt.setp(ax0.get_xticklabels(), visible=False)
             plt.setp(ax0.get_yticklabels(), visible=False)
             plt.title("%s #%d" % (title, i), create_font('Tahoma',10))
@@ -49,11 +50,11 @@ def plot_eigenvectors(eigenvectors, num_components, sz, filename=None, start_com
             fig.show()
         else:
             fig.savefig(filename, format="png", transparent=False)
-            
+
 def subplot(title, images, rows, cols, sptitle="subplot", sptitles=[], colormap=cm.gray, ticks_visible=True, filename=None):
     fig = plt.figure()
     # main title
-    fig.text(.5, .95, title, horizontalalignment='center') 
+    fig.text(.5, .95, title, horizontalalignment='center')
     for i in xrange(len(images)):
         ax0 = fig.add_subplot(rows,cols,(i+1))
         plt.setp(ax0.get_xticklabels(), visible=False)
@@ -68,7 +69,6 @@ def subplot(title, images, rows, cols, sptitle="subplot", sptitles=[], colormap=
     else:
         fig.savefig(filename)
 
-
 # using plt plot:
 #filename="/home/philipp/facelib/at_database_vs_accuracy_xy.png"
 #t = np.arange(2., 10., 1.)
@@ -80,5 +80,3 @@ def subplot(title, images, rows, cols, sptitle="subplot", sptitles=[], colormap=
 #plt.xlabel('Database Size (Images per Person)')
 #fig.savefig(filename, format="png", transparent=False)
 #plt.show()
-
-

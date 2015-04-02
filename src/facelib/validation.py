@@ -114,6 +114,9 @@ class ValidationResult(object):
         res_fmeasure = fmeasure(res_precision, res_recall)
         return "ValidationResult (Description=%s, Precision=%.2f%%, Recall=%.2f%%, Accuracy=%.2f%%, F-Measure=%.2f%%)" % (self.description, res_precision, res_recall, res_accuracy, res_fmeasure)
 
+    def accuracy(self):
+        return accuracy(self.true_positives, self.true_negatives, self.false_positives, self.false_negatives) * 100
+
 class ValidationStrategy(object):
     """ Represents a generic Validation kernel for all Validation strategies.
     """
@@ -144,6 +147,11 @@ class ValidationStrategy(object):
         """
         raise NotImplementedError("Every Validation module must implement the validate method!")
 
+    def accuracy(self):
+        accuracy = []
+        for validation_result in self.validation_results:
+            accuracy.append(validation_result.accuracy())
+        return max(accuracy)
 
     def print_results(self):
         print self.model
