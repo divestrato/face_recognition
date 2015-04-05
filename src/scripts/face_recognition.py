@@ -100,7 +100,18 @@ else:
 model = PredictableModel(feature=feature, classifier=classifier)
 model.compute(data, labels)
 
-# TODO: define extra outputs
+# define extra outputs
+if args.eigen:
+    # turn the first (at most) 16 eigenvectors into grayscale images
+    E = []
+    for i in xrange(min(model.feature.eigenvectors.shape[1], 16)):
+        e = model.feature.eigenvectors[:,i].reshape(data[0].shape)
+        E.append(minmax_normalize(e,0,255, dtype=np.uint8))
+    subplot(title="Eigenvectors", images=E, rows=4, cols=4, colormap=cm.gray)
+
+if args.roc:
+    # TODO: output ROC
+    pass
 
 # define cross validation
 if args.kcv:
