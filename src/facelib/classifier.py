@@ -103,6 +103,17 @@ class NearestNeighbor(AbstractClassifier):
         # item
         return [predicted_label, { 'labels' : sorted_y, 'distances' : sorted_distances }]
 
+    def distance(self,q,y):
+        distances = []
+        for i in range(len(self.X)):
+            if(self.y[i] == y):
+                xi = self.X[i].reshape(-1, 1)
+                d = self.dist_metric(xi, q)
+                distances.append(d)
+
+        sorted_distances = sorted(distances)
+        return np.mean(sorted_distances[0:self.k])
+
     def __repr__(self):
         return "NearestNeighbor (k=%s, dist_metric=%s)" % (self.k, repr(self.dist_metric))
 
@@ -175,6 +186,13 @@ class SVM(AbstractClassifier):
         sys.stdout=bkp_stdout
         predicted_label = int(p_lbl[0])
         return [predicted_label, { 'p_lbl' : p_lbl, 'p_acc' : p_acc, 'p_val' : p_val }]
+
+    def distance(self,q,y):
+        X = np.asarray(q).reshape(1,-1)
+        sys.stdout=StringIO()
+        p_lbl, p_acc, p_val = svm_predict([0], X.tolist(), self.svm)
+        sys.stdout=bkp_stdout
+        return np.mean(p_val[0][0])
 
     def __repr__(self):
         return "Support Vector Machine (kernel_type=%s, C=%.2f,gamma=%.2f,p=%.2f,nu=%.2f,coef=%.2f,degree=%.2f)" % (KERNEL_TYPE[self.param.kernel_type], self.param.C, self.param.gamma, self.param.p, self.param.nu, self.param.coef0, self.param.degree)

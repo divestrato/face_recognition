@@ -1,4 +1,5 @@
 import sys
+import json
 import argparse
 # append facelib to module search path
 sys.path.append("..")
@@ -39,6 +40,10 @@ validation_group.add_argument('--kcv', type=int, choices=[5, 10], default=10, he
 validation_group.add_argument('--loo', action='store_true', help='use Leave One Out Cross Validaton')
 
 parser.add_argument("dir", type=str, help="Directory of the face database")
+parser.add_argument("--debug", action='store_true', help="Enable DEBUG output")
+parser.add_argument("--roc", action='store_true', help="Show ROC output")
+parser.add_argument("--eigen", action='store_true', help="Show Eigenvector output")
+
 args = parser.parse_args()
 
 # load a dataset
@@ -52,7 +57,11 @@ handler.setFormatter(formatter)
 # add handler to facelib modules
 logger = logging.getLogger("facelib")
 logger.addHandler(handler)
-logger.setLevel(logging.INFO)
+
+if args.debug:
+    logger.setLevel(logging.DEBUG)
+else:
+    logger.setLevel(logging.INFO)
 
 # define feature extraction method
 if args.pca:
@@ -77,7 +86,8 @@ elif args.train:
     model = PredictableModel(feature=feature, classifier=classifier)
     [best_parameter, results] = grid_search(model, data, labels)
     results.sort(key=lambda x: int(x[2]))
-    print "Result C: %f, gamma: %f, accuracy: %.2f" % (results[-1][0], results[-1][1], results[-1][2])
+    logger.info("Training result C: %.2f, gamma: %2.f, accuracy: %.2f" % (results[-1][0], results[-1][1], results[-1][2]))
+    print (json.dumps(results, indent=4))
     sys.exit()
 elif args.kne:
     classifier = NearestNeighbor(dist_metric=EuclideanDistance(), k=args.kne)
@@ -90,6 +100,7 @@ else:
 model = PredictableModel(feature=feature, classifier=classifier)
 model.compute(data, labels)
 
+# TODO: define extra outputs
 
 # define cross validation
 if args.kcv:
