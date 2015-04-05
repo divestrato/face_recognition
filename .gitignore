@@ -2,6 +2,8 @@
 __pycache__/
 *.py[cod]
 *.pdf
+*.png
+*.jpg
 
 # C extensions
 *.so
