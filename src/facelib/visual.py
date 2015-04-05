@@ -11,6 +11,7 @@ try:
 except ImportError:
     import Image
 import math as math
+import random
 
 
 def create_font(fontname='Tahoma', fontsize=10):
@@ -68,6 +69,128 @@ def subplot(title, images, rows, cols, sptitle="subplot", sptitles=[], colormap=
         plt.show()
     else:
         fig.savefig(filename)
+
+def plot_roc(model, data, labels):
+    roc = []
+    for current_roctestlabel in range(4):
+        testdataperclass = 5
+
+        checklabels = []
+
+        all1 = []
+        all2 = []
+
+        for i in range(len(data)):
+            if(labels[i] == current_roctestlabel):
+                checklabels.append(1)
+                all1.append(i)
+            else:
+                checklabels.append(2)
+                all2.append(i)
+
+        testxi = []
+
+        random.seed()
+        testxi.extend(random.sample(all1, testdataperclass))
+        testxi.extend(random.sample(all2, testdataperclass))
+
+        testxi = sorted(testxi)
+
+        testxicount = 0
+
+        newdata = []
+        newlabels = []
+
+        testxilen = len(testxi)
+
+        for i in range(len(data)):
+            if testxicount < testxilen:
+                if i != testxi[testxicount]:
+                    newdata.append(data[i])
+                    newlabels.append(checklabels[i])
+                else:
+                    testxicount += 1
+            else:
+                newdata.append(data[i])
+                newlabels.append(checklabels[i])
+
+        # compute model
+        model.compute(newdata, newlabels)
+
+        roc_distance = []
+        roc_predictedclass = []
+        roc_trueclass = []
+
+        for i in range(testxilen):
+            #ires = model.predict(data[testxi[i]])
+            idis1 = model.distance(data[testxi[i]], 1)
+
+            icls = checklabels[testxi[i]]
+
+            roc_distance.append(idis1)
+            roc_trueclass.append(icls)
+
+        # compute data for roc
+
+        tp = 0
+        fp = 0
+        tn = 0
+        fn = 0
+
+        doublecount = testdataperclass * 2
+
+        rocx = []
+        rocy = []
+
+        sorted_index = np.argsort(np.asarray(roc_distance))
+        for i in range(doublecount-1, -1, -1):
+            tp = 0
+            fp = 0
+            tn = 0
+            fn = 0
+
+            curr_tresh = roc_distance[sorted_index[i]]
+
+            for j in range(doublecount - 1, -1, -1):
+                if(roc_distance[sorted_index[j]] <= curr_tresh):
+                    if roc_trueclass[sorted_index[j]] == 1:
+                        tp += 1
+                    else:
+                        fp += 1
+                else:
+                    if roc_trueclass[sorted_index[j]] == 1:
+                        fn += 1
+                    else:
+                        tn += 1
+
+            tpr = float(tp) / (tp + fn)
+            fpr = float(fp) / (fp + tn)
+
+            rocx.append(fpr)
+            rocy.append(tpr)
+
+        rocx.append(0)
+        rocy.append(0)
+        roc.append([rocx, rocy])
+
+    #Interpolate points over 100 data
+    x_space = np.linspace(float(0),float(1),100)
+    interpolated = [np.interp(x_space,sorted(d[0]),sorted(d[1])) for d in roc]
+
+    #Average the y coordinates
+    y_points = [np.average(x) for x in zip(*interpolated)]
+    x_points = [x for x in x_space]
+    x_points = [0.0] + x_points
+    y_points = [0.0] + y_points
+
+    plt.plot(x_points, y_points)
+
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+
+    plt.axis([0, 1, 0, 1.1])
+    plt.show()
+
 
 # using plt plot:
 #filename="/home/philipp/facelib/at_database_vs_accuracy_xy.png"

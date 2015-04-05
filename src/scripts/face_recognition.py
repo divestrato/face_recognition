@@ -12,7 +12,7 @@ from facelib.classifier import NearestNeighbor
 from facelib.classifier import SVM
 from facelib.model import PredictableModel
 from facelib.validation import KFoldCrossValidation, LeaveOneOutCrossValidation
-from facelib.visual import subplot, plot_gray
+from facelib.visual import subplot, plot_gray, plot_roc
 from facelib.util import minmax_normalize, read_images
 from svmutil import *
 
@@ -110,8 +110,7 @@ if args.eigen:
     subplot(title="Eigenvectors", images=E, rows=4, cols=4, colormap=cm.gray)
 
 if args.roc:
-    # TODO: output ROC
-    pass
+    plot_roc(model=model, data=data, labels=labels)
 
 # define cross validation
 if args.kcv:
