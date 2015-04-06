@@ -92,7 +92,7 @@ elif args.train:
 elif args.kne:
     classifier = NearestNeighbor(dist_metric=EuclideanDistance(), k=args.kne)
 elif args.knc:
-    classifier = NearestNeighbor(dist_metric=CosineDistance(), k=args.kne)
+    classifier = NearestNeighbor(dist_metric=CosineDistance(), k=args.knc)
 else:
     classifier = NearestNeighbor(dist_metric=EuclideanDistance(), k=1)
 
